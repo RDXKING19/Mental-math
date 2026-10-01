@@ -1,0 +1,433 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Baloo 2', cursive, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Lexend', system-ui, -apple-system, sans-serif;
+
+  --color-paper: var(--bg-paper);
+  --color-card: var(--bg-card);
+  --color-subtle: var(--bg-subtle);
+  --color-ink: var(--text-ink);
+  --color-ink-soft: var(--text-ink-soft);
+  --color-ink-muted: var(--text-ink-muted);
+
+  --color-saffron: var(--color-saffron);
+  --color-saffron-hover: var(--color-saffron-hover);
+  --color-saffron-light: var(--color-saffron-light);
+  --color-saffron-border: var(--color-saffron-border);
+
+  --color-teal: var(--color-teal);
+  --color-teal-hover: var(--color-teal-hover);
+  --color-teal-light: var(--color-teal-light);
+
+  --color-coral: var(--color-coral);
+  --color-coral-light: var(--color-coral-light);
+
+  --color-lavender: var(--color-lavender);
+  --color-lavender-light: var(--color-lavender-light);
+
+  --color-sun: var(--color-sun);
+  --color-sun-light: var(--color-sun-light);
+
+  --color-master: var(--color-master);
+  --color-master-light: var(--color-master-light);
+
+  --color-border-ink: var(--border-ink);
+  --color-border-ink-strong: var(--border-ink-strong);
+}
+
+/* ☀️ Golden Dawn Design System (Ultra-Legible, Warm Ivory Cream & High-Contrast Ink) */
+:root,
+:root[data-theme="cream"],
+:root[data-theme="paper"] {
+  --bg-paper: #FAF6ED;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F3ECE0;
+  --bg-subtle-hover: #E7DDCF;
+  --text-ink: #140826;
+  --text-ink-soft: #2D1A45;
+  --text-ink-muted: #543D6F;
+  --color-saffron: #C2410C;
+  --color-saffron-hover: #9A3412;
+  --color-saffron-light: #FFEDE0;
+  --color-saffron-border: #F97316;
+  --color-teal: #047857;
+  --color-teal-hover: #065F46;
+  --color-teal-light: #D1FAE5;
+  --color-coral: #BE123C;
+  --color-coral-light: #FFE4E6;
+  --color-lavender: #6D28D9;
+  --color-lavender-light: #EDE9FE;
+  --color-sun: #B45309;
+  --color-sun-light: #FEF3C7;
+  --color-master: #7E22CE;
+  --color-master-light: #F3E8FF;
+  --border-ink: rgba(46, 27, 72, 0.16);
+  --border-ink-strong: rgba(180, 83, 9, 0.45);
+  --shadow-warm: 0 4px 15px -2px rgba(20, 8, 38, 0.06), 0 0 10px rgba(180, 83, 9, 0.04);
+  --shadow-warm-lg: 0 12px 28px -4px rgba(20, 8, 38, 0.1), 0 0 20px rgba(180, 83, 9, 0.08);
+  --shadow-glow-saffron: 0 0 20px rgba(194, 65, 12, 0.25);
+  --shadow-glow-teal: 0 0 20px rgba(4, 120, 87, 0.25);
+}
+
+/* 2. ✨ Mystic Bazaar (Vibrant Royal Purple, Warm Orange & Radiant Gold) */
+:root[data-theme="paper"],
+:root[data-theme="bazaar"] {
+  --bg-paper: #0D0822;
+  --bg-card: #18103A;
+  --bg-subtle: #251954;
+  --bg-subtle-hover: #38257A;
+  --text-ink: #FFFFFF;
+  --text-ink-soft: #F1EDFF;
+  --text-ink-muted: #B7A0FA;
+  --color-saffron: #FF7300;
+  --color-saffron-hover: #FF5500;
+  --color-saffron-light: rgba(255, 115, 0, 0.22);
+  --color-saffron-border: #FFA044;
+  --color-teal: #00E699;
+  --color-teal-hover: #00C882;
+  --color-teal-light: rgba(0, 230, 153, 0.2);
+  --color-coral: #FF3366;
+  --color-coral-light: rgba(255, 51, 102, 0.22);
+  --color-lavender: #C084FC;
+  --color-lavender-light: rgba(192, 132, 252, 0.22);
+  --color-sun: #FFC01E;
+  --color-sun-light: rgba(255, 192, 30, 0.22);
+  --color-master: #E879F9;
+  --color-master-light: rgba(232, 121, 249, 0.24);
+  --border-ink: rgba(183, 160, 250, 0.24);
+  --border-ink-strong: rgba(255, 192, 30, 0.6);
+  --shadow-warm: 0 10px 30px -4px rgba(8, 4, 20, 0.8), 0 0 20px rgba(139, 92, 246, 0.18);
+  --shadow-warm-lg: 0 20px 45px -5px rgba(8, 4, 20, 0.95), 0 0 35px rgba(139, 92, 246, 0.4);
+  --shadow-glow-saffron: 0 0 35px rgba(255, 115, 0, 0.65);
+  --shadow-glow-teal: 0 0 35px rgba(0, 230, 153, 0.55);
+}
+
+/* 2. 🔥 Onyx & Blaze (Deep Obsidian Carbon, Electric Blazing Orange & Neon Cyan) */
+:root[data-theme="onyx"] {
+  --bg-paper: #09090C;
+  --bg-card: #141418;
+  --bg-subtle: #222228;
+  --bg-subtle-hover: #303038;
+  --text-ink: #FFFFFF;
+  --text-ink-soft: #F4F4F6;
+  --text-ink-muted: #A6A6B4;
+  --color-saffron: #FF6600;
+  --color-saffron-hover: #FF8533;
+  --color-saffron-light: rgba(255, 102, 0, 0.24);
+  --color-saffron-border: #FF6600;
+  --color-teal: #00F0FF;
+  --color-teal-hover: #38BDF8;
+  --color-teal-light: rgba(0, 240, 255, 0.22);
+  --color-coral: #FF334B;
+  --color-coral-light: rgba(255, 51, 75, 0.25);
+  --color-lavender: #FFA133;
+  --color-lavender-light: rgba(255, 161, 51, 0.22);
+  --color-sun: #FFB703;
+  --color-sun-light: rgba(255, 183, 3, 0.24);
+  --color-master: #FF5400;
+  --color-master-light: rgba(255, 84, 0, 0.28);
+  --border-ink: rgba(255, 102, 0, 0.32);
+  --border-ink-strong: rgba(255, 102, 0, 0.68);
+  --shadow-warm: 0 10px 30px -4px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 102, 0, 0.2);
+  --shadow-warm-lg: 0 20px 45px -5px rgba(0, 0, 0, 0.98), 0 0 35px rgba(255, 102, 0, 0.45);
+  --shadow-glow-saffron: 0 0 35px rgba(255, 102, 0, 0.75);
+  --shadow-glow-teal: 0 0 35px rgba(0, 240, 255, 0.7);
+}
+
+/* 3. 🌌 Cosmic Nebula (Deep Navy Space, Emerald & Radiant Gold) */
+:root[data-theme="focus"] {
+  --bg-paper: #090E1A;
+  --bg-card: #121A2E;
+  --bg-subtle: #1C2744;
+  --bg-subtle-hover: #2B3A60;
+  --text-ink: #FFFFFF;
+  --text-ink-soft: #DDE5F5;
+  --text-ink-muted: #9BB0D6;
+  --color-saffron: #FBBF24;
+  --color-saffron-hover: #F59E0B;
+  --color-saffron-light: rgba(251, 191, 36, 0.22);
+  --color-saffron-border: rgba(251, 191, 36, 0.5);
+  --color-teal: #10B981;
+  --color-teal-hover: #059669;
+  --color-teal-light: rgba(16, 185, 129, 0.22);
+  --color-coral: #FB7185;
+  --color-coral-light: rgba(251, 113, 133, 0.22);
+  --color-lavender: #818CF8;
+  --color-lavender-light: rgba(129, 140, 248, 0.22);
+  --color-sun: #FDE047;
+  --color-sun-light: rgba(253, 224, 71, 0.22);
+  --color-master: #C084FC;
+  --color-master-light: rgba(192, 132, 252, 0.22);
+  --border-ink: rgba(155, 176, 214, 0.25);
+  --border-ink-strong: rgba(251, 191, 36, 0.5);
+  --shadow-warm: 0 10px 30px -4px rgba(4, 7, 15, 0.8), 0 0 20px rgba(56, 189, 248, 0.15);
+  --shadow-warm-lg: 0 20px 45px -5px rgba(4, 7, 15, 0.95), 0 0 35px rgba(56, 189, 248, 0.3);
+  --shadow-glow-saffron: 0 0 30px rgba(251, 191, 36, 0.5);
+  --shadow-glow-teal: 0 0 30px rgba(16, 185, 129, 0.5);
+}
+
+/* 4. 🌿 Emerald Scholar (Imperial Jade Sanctuary, Luminous Mint & Amber) */
+:root[data-theme="emerald"] {
+  --bg-paper: #022421;
+  --bg-card: #053833;
+  --bg-subtle: #094E47;
+  --bg-subtle-hover: #0E645B;
+  --text-ink: #FFFFFF;
+  --text-ink-soft: #D1FAE5;
+  --text-ink-muted: #86EFAC;
+  --color-saffron: #FCD34D;
+  --color-saffron-hover: #FBBF24;
+  --color-saffron-light: rgba(252, 211, 77, 0.22);
+  --color-saffron-border: rgba(252, 211, 77, 0.5);
+  --color-teal: #34D399;
+  --color-teal-hover: #10B981;
+  --color-teal-light: rgba(52, 211, 153, 0.24);
+  --color-coral: #FB7185;
+  --color-coral-light: rgba(251, 113, 133, 0.22);
+  --color-lavender: #A78BFA;
+  --color-lavender-light: rgba(167, 139, 250, 0.22);
+  --color-sun: #FDE047;
+  --color-sun-light: rgba(253, 224, 71, 0.22);
+  --color-master: #D8B4FE;
+  --color-master-light: rgba(216, 180, 254, 0.22);
+  --border-ink: rgba(134, 239, 172, 0.25);
+  --border-ink-strong: rgba(252, 211, 77, 0.5);
+  --shadow-warm: 0 10px 30px -4px rgba(1, 20, 18, 0.8), 0 0 20px rgba(52, 211, 153, 0.18);
+  --shadow-warm-lg: 0 20px 45px -5px rgba(1, 20, 18, 0.95), 0 0 35px rgba(52, 211, 153, 0.35);
+  --shadow-glow-saffron: 0 0 30px rgba(252, 211, 77, 0.5);
+  --shadow-glow-teal: 0 0 30px rgba(52, 211, 153, 0.5);
+}
+
+/* 5. 🌅 Cyber Sunset (Electric Twilight, Vivid Coral & Cyan) */
+:root[data-theme="sunset"] {
+  --bg-paper: #12092B;
+  --bg-card: #201047;
+  --bg-subtle: #2F1763;
+  --bg-subtle-hover: #401F82;
+  --text-ink: #FFFFFF;
+  --text-ink-soft: #F5E8FF;
+  --text-ink-muted: #D1A5FF;
+  --color-saffron: #FF5E36;
+  --color-saffron-hover: #FF3E10;
+  --color-saffron-light: rgba(255, 94, 54, 0.24);
+  --color-saffron-border: rgba(255, 94, 54, 0.5);
+  --color-teal: #00F5D4;
+  --color-teal-hover: #00D1B5;
+  --color-teal-light: rgba(0, 245, 212, 0.24);
+  --color-coral: #FF2A6D;
+  --color-coral-light: rgba(255, 42, 109, 0.24);
+  --color-lavender: #C084FC;
+  --color-lavender-light: rgba(192, 132, 252, 0.24);
+  --color-sun: #FFDE59;
+  --color-sun-light: rgba(255, 222, 89, 0.24);
+  --color-master: #FF3898;
+  --color-master-light: rgba(255, 56, 152, 0.24);
+  --border-ink: rgba(209, 165, 255, 0.25);
+  --border-ink-strong: rgba(255, 222, 89, 0.55);
+  --shadow-warm: 0 10px 30px -4px rgba(10, 5, 25, 0.8), 0 0 20px rgba(255, 42, 109, 0.2);
+  --shadow-warm-lg: 0 20px 45px -5px rgba(10, 5, 25, 0.95), 0 0 35px rgba(255, 42, 109, 0.4);
+  --shadow-glow-saffron: 0 0 30px rgba(255, 94, 54, 0.55);
+  --shadow-glow-teal: 0 0 30px rgba(0, 245, 212, 0.55);
+}
+
+/* Scalable Text Size Modes */
+:root[data-text-size="normal"] {
+  font-size: 16px;
+}
+:root,
+:root[data-text-size="large"] {
+  font-size: 18px; /* High readability default for Grades 5-8 */
+}
+:root[data-text-size="xl"] {
+  font-size: 20px;
+}
+
+html, body, #root {
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--bg-paper);
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(217, 119, 6, 0.08) 0px, transparent 45%),
+    radial-gradient(at 85% 20%, rgba(234, 88, 12, 0.06) 0px, transparent 40%),
+    radial-gradient(at 50% 85%, rgba(124, 58, 237, 0.05) 0px, transparent 50%);
+  color: var(--text-ink);
+  font-family: 'Lexend', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: 'Baloo 2', cursive, sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Essential Direct Utility Classes Guaranteeing Immediate Theme Rendering */
+.bg-paper { background-color: var(--bg-paper) !important; }
+.bg-card { background-color: var(--bg-card) !important; }
+.bg-subtle { background-color: var(--bg-subtle) !important; }
+.text-ink { color: var(--text-ink) !important; }
+.text-ink-soft { color: var(--text-ink-soft) !important; }
+.text-ink-muted { color: var(--text-ink-muted) !important; }
+.border-ink { border-color: var(--border-ink) !important; }
+.border-ink-strong { border-color: var(--border-ink-strong) !important; }
+
+.text-saffron { color: var(--color-saffron) !important; }
+.bg-saffron { background-color: var(--color-saffron) !important; }
+.border-saffron { border-color: var(--color-saffron) !important; }
+.bg-saffron-light { background-color: var(--color-saffron-light) !important; }
+
+.text-sun { color: var(--color-sun) !important; }
+.bg-sun { background-color: var(--color-sun) !important; }
+.border-sun { border-color: var(--color-sun) !important; }
+.fill-sun { fill: var(--color-sun) !important; }
+.bg-sun-light { background-color: var(--color-sun-light) !important; }
+
+.text-teal { color: var(--color-teal) !important; }
+.bg-teal { background-color: var(--color-teal) !important; }
+.border-teal { border-color: var(--color-teal) !important; }
+.bg-teal-light { background-color: var(--color-teal-light) !important; }
+
+.text-lavender { color: var(--color-lavender) !important; }
+.bg-lavender { background-color: var(--color-lavender) !important; }
+.bg-lavender-light { background-color: var(--color-lavender-light) !important; }
+
+.text-master { color: var(--color-master) !important; }
+.bg-master { background-color: var(--color-master) !important; }
+.bg-master-light { background-color: var(--color-master-light) !important; }
+
+.text-coral { color: var(--color-coral) !important; }
+.bg-coral { background-color: var(--color-coral) !important; }
+.bg-coral-light { background-color: var(--color-coral-light) !important; }
+
+.bead-shadow {
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.7), 0 4px 10px rgba(15, 23, 42, 0.25);
+}
+
+.paper-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-ink);
+  box-shadow: var(--shadow-warm);
+  border-radius: 1.5rem;
+}
+
+.paper-card-interactive {
+  background: var(--bg-card);
+  border: 2px solid var(--border-ink);
+  box-shadow: var(--shadow-warm);
+  border-radius: 1.5rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.paper-card-interactive:hover {
+  border-color: var(--color-saffron);
+  box-shadow: var(--shadow-warm-lg), var(--shadow-glow-saffron);
+  transform: translateY(-3px) scale(1.01);
+}
+
+/* Animations */
+@keyframes floatGentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float-slow {
+  animation: floatGentle 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+.hover-wiggle:hover {
+  animation: wiggle 0.4s ease-in-out infinite;
+}
+
+/* Floating Mathematical Symbols Keyframes */
+@keyframes floatMath1 {
+  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 0.25; }
+  50% { transform: translateY(-14px) rotate(8deg) scale(1.1); opacity: 0.55; }
+}
+
+@keyframes floatMath2 {
+  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 0.2; }
+  50% { transform: translateY(-18px) rotate(-10deg) scale(1.15); opacity: 0.6; }
+}
+
+@keyframes floatMath3 {
+  0%, 100% { transform: translateY(0px) scale(0.95); opacity: 0.3; }
+  50% { transform: translateY(-10px) scale(1.08); opacity: 0.7; }
+}
+
+@keyframes shimmerSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-float-math1 {
+  animation: floatMath1 4s ease-in-out infinite;
+}
+
+.animate-float-math2 {
+  animation: floatMath2 5.5s ease-in-out infinite;
+}
+
+.animate-float-math3 {
+  animation: floatMath3 3.5s ease-in-out infinite;
+}
+
+.shimmer-btn-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shimmerSweep 3s infinite;
+}
+
+/* Custom Scrollbar for inner stage */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-ink-strong);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-ink-muted);
+}
