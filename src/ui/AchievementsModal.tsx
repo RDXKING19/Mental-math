@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 import { X, Award, Sparkles, Lock, CheckCircle2 } from 'lucide-react';
 import { getAchievements, Achievement } from '../engine/gamification';
@@ -75,18 +77,16 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = ({
           {achievements.map(ach => (
             <div
               key={ach.id}
-              className={`p-4 rounded-2xl border-2 transition-all flex items-start gap-3.5 ${
-                ach.isUnlocked
+              className={`p-4 rounded-2xl border-2 transition-all flex items-start gap-3.5 ${ach.isUnlocked
                   ? 'bg-paper border-sun/50 shadow-warm'
                   : 'bg-paper/40 border-ink/10 opacity-60'
-              }`}
+                }`}
             >
               <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0 border ${
-                  ach.isUnlocked
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0 border ${ach.isUnlocked
                     ? 'bg-gradient-to-br from-sun/20 to-saffron/20 border-sun/50 shadow-sm'
                     : 'bg-paper border-ink/10'
-                }`}
+                  }`}
               >
                 {ach.isUnlocked ? ach.icon : <Lock className="w-5 h-5 text-ink-muted" />}
               </div>

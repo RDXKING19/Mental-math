@@ -12,6 +12,7 @@ import {
   AlertCircle,
   Shield,
   Bot,
+  Volume2,
 } from 'lucide-react';
 import { GateId, Problem } from '../../engine/types';
 import { GATES } from '../../content/gatesData';
@@ -29,6 +30,8 @@ import {
   playFanfare,
   playStreak,
   playTap,
+  speakNarration,
+  stopNarration,
 } from '../../services/audio';
 
 interface PracticePlayScreenProps {
@@ -87,6 +90,13 @@ export const PracticePlayScreen: React.FC<PracticePlayScreenProps> = ({
 
   const currentProblem = questions[questionIdx] || questions[0];
 
+  // Stop any voice narration when leaving PracticePlayScreen
+  useEffect(() => {
+    return () => {
+      stopNarration();
+    };
+  }, []);
+
   // Soft Timer interval
   useEffect(() => {
     if (feedback || isWorldComplete) return;
@@ -119,7 +129,12 @@ export const PracticePlayScreen: React.FC<PracticePlayScreenProps> = ({
       playCorrect(soundEnabled);
       const newStreak = streak + 1;
       setStreak(newStreak);
-      if (newStreak === 5) playStreak(soundEnabled);
+      if (newStreak === 3) {
+        speakNarration('Three in a row! Superb!', !soundEnabled);
+      } else if (newStreak === 5) {
+        playStreak(soundEnabled);
+        speakNarration('Five in a row! You are on fire!', !soundEnabled);
+      }
 
       const xp = calculateXp(
         { correct: true, ms, hintUsed, retried: hasRetried },
@@ -180,11 +195,20 @@ export const PracticePlayScreen: React.FC<PracticePlayScreenProps> = ({
 
     if (finalStars >= 3 || (worldDef.isGuardian && isGuardianPassed(correctCount))) {
       playFanfare(soundEnabled);
+      speakNarration(
+        `World complete! Outstanding agility with ${correctCount} correct and ${finalStars} stars!`,
+        !soundEnabled
+      );
       confetti({
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
       });
+    } else {
+      speakNarration(
+        `World finished with ${correctCount} correct answers. Keep going!`,
+        !soundEnabled
+      );
     }
 
     onFinishWorld(finalStars, correctCount, accumulatedXp);
@@ -381,10 +405,20 @@ export const PracticePlayScreen: React.FC<PracticePlayScreenProps> = ({
           {currentProblem.techniqueId} · {currentProblem.explanation}
         </span>
 
-        {/* Big Bold Problem Equation */}
-        <h2 className="font-mono font-black text-5xl sm:text-7xl text-ink tracking-wide drop-shadow-sm">
-          {currentProblem.prompt}
-        </h2>
+        {/* Big Bold Problem Equation with Read-Aloud Button */}
+        <div className="flex items-center justify-center gap-3">
+          <h2 className="font-mono font-black text-4xl sm:text-7xl text-ink tracking-wide drop-shadow-sm">
+            {currentProblem.prompt}
+          </h2>
+          <button
+            type="button"
+            onClick={() => speakNarration(currentProblem.prompt, !soundEnabled)}
+            className="p-2.5 text-ink-muted hover:text-amber-600 hover:bg-paper rounded-2xl border border-ink/10 transition-all cursor-pointer shadow-xs active:scale-95"
+            title="Read problem aloud"
+          >
+            <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+        </div>
 
         {currentProblem.subPrompt && (
           <p className="text-sm sm:text-base text-ink-soft italic font-medium">

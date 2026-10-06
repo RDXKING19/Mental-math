@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ArrowRight, Sparkles, RotateCcw, CheckCircle } from 'lucide-react';
-import { playStep, playCorrect } from '../services/audio';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, Sparkles, RotateCcw, CheckCircle, Volume2 } from 'lucide-react';
+import { playStep, playCorrect, speakNarration, stopNarration } from '../services/audio';
 
 interface CrossGridVisualProps {
   a?: number; // e.g. 23
@@ -29,26 +29,56 @@ export const CrossGridVisual: React.FC<CrossGridVisualProps> = ({
   const left = aTens * bTens; // 2
   const answer = a * b; // 322
 
+  // Stop narration on unmount
+  useEffect(() => {
+    return () => {
+      stopNarration();
+    };
+  }, []);
+
   const handleNext = () => {
-    if (step < 2) {
+    if (step === 0) {
       playStep(soundEnabled);
-      setStep((step + 1) as 1 | 2 | 3);
+      setStep(1);
+      speakNarration(
+        `Step 1: Multiply the right units vertically. ${aOnes} times ${bOnes} equals ${right}.`,
+        !soundEnabled
+      );
+    } else if (step === 1) {
+      playStep(soundEnabled);
+      setStep(2);
+      speakNarration(
+        `Step 2: Cross-multiply and sum. (${aTens} times ${bOnes}) plus (${aOnes} times ${bTens}) equals ${cross}.`,
+        !soundEnabled
+      );
     } else if (step === 2) {
       playCorrect(soundEnabled);
       setStep(3);
+      speakNarration(
+        `Step 3: Multiply left tens: ${aTens} times ${bTens} equals ${left}. Regrouping carries gives final answer ${answer}! Solved!`,
+        !soundEnabled
+      );
       onComplete?.();
     }
   };
 
   const handleReset = () => {
+    stopNarration();
     playStep(soundEnabled);
     setStep(0);
+  };
+
+  const handleGuideMe = () => {
+    speakNarration(
+      'Welcome to Urdhva Tiryagbhyam, the vertical and crosswise multiplication method! Step 1: Multiply the right units digits vertically. Step 2: Cross-multiply and sum the products. Step 3: Multiply the left tens digits vertically. Then combine with carries to write the answer in one single line!',
+      !soundEnabled
+    );
   };
 
   return (
     <div className={`p-5 sm:p-7 bg-card paper-card border-2 border-ink/15 shadow-warm ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <span className="font-display font-black text-xs sm:text-sm uppercase tracking-wider text-teal flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-saffron" /> Urdhva-Tiryagbhyam (Vertical & Crosswise)
@@ -61,15 +91,28 @@ export const CrossGridVisual: React.FC<CrossGridVisualProps> = ({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleReset}
-          className="p-2.5 text-ink-muted hover:text-ink hover:bg-paper rounded-2xl border border-ink/10 transition-all flex items-center gap-1.5 text-xs font-bold"
-          title="Reset Visualizer"
-        >
-          <RotateCcw className="w-4 h-4" />
-          <span className="hidden sm:inline">Reset</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Guide Me voice narration */}
+          <button
+            type="button"
+            onClick={handleGuideMe}
+            className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-full font-display font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
+            title="Listen to how Vertical & Crosswise works"
+          >
+            <Volume2 className="w-4 h-4 text-amber-600" />
+            <span>Guide Me</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleReset}
+            className="p-2.5 text-ink-muted hover:text-ink hover:bg-paper rounded-2xl border border-ink/10 transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+            title="Reset Visualizer"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span className="hidden sm:inline">Reset</span>
+          </button>
+        </div>
       </div>
 
       {/* Visual Criss-Cross Display */}
@@ -136,45 +179,45 @@ export const CrossGridVisual: React.FC<CrossGridVisualProps> = ({
       </div>
 
       {/* Step Working Cards */}
-      <div className="mt-4 grid grid-cols-3 gap-2.5">
+      <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-2.5">
         {/* Left Column */}
         <div
-          className={`p-3 rounded-2xl border text-center transition-all ${
+          className={`p-2.5 sm:p-3 rounded-2xl border text-center transition-all ${
             step >= 3 ? 'bg-indigo-50/80 border-indigo-300 shadow-sm' : 'bg-paper/50 border-ink/10 opacity-60'
           }`}
         >
-          <span className="text-xs uppercase font-extrabold text-indigo-700 block">
+          <span className="text-[10px] sm:text-xs uppercase font-extrabold text-indigo-700 block">
             3. Left Vert
           </span>
-          <div className="font-mono text-base sm:text-lg font-black text-ink mt-0.5">
+          <div className="font-mono text-xs sm:text-base font-black text-ink mt-0.5">
             {aTens} × {bTens} = {left}
           </div>
         </div>
 
         {/* Crosswise Column */}
         <div
-          className={`p-3 rounded-2xl border text-center transition-all ${
+          className={`p-2.5 sm:p-3 rounded-2xl border text-center transition-all ${
             step >= 2 ? 'bg-emerald-50/80 border-emerald-300 shadow-sm' : 'bg-paper/50 border-ink/10 opacity-60'
           }`}
         >
-          <span className="text-xs uppercase font-extrabold text-emerald-700 block">
+          <span className="text-[10px] sm:text-xs uppercase font-extrabold text-emerald-700 block">
             2. Criss-Cross
           </span>
-          <div className="font-mono text-xs sm:text-sm font-black text-ink mt-0.5">
+          <div className="font-mono text-[9px] sm:text-xs md:text-sm font-black text-ink mt-0.5 break-words">
             ({aTens}×{bOnes}) + ({aOnes}×{bTens}) = {cross}
           </div>
         </div>
 
         {/* Right Column */}
         <div
-          className={`p-3 rounded-2xl border text-center transition-all ${
+          className={`p-2.5 sm:p-3 rounded-2xl border text-center transition-all ${
             step >= 1 ? 'bg-amber-50/80 border-amber-300 shadow-sm' : 'bg-paper/50 border-ink/10 opacity-60'
           }`}
         >
-          <span className="text-xs uppercase font-extrabold text-amber-700 block">
+          <span className="text-[10px] sm:text-xs uppercase font-extrabold text-amber-700 block">
             1. Right Vert
           </span>
-          <div className="font-mono text-base sm:text-lg font-black text-ink mt-0.5">
+          <div className="font-mono text-xs sm:text-base font-black text-ink mt-0.5">
             {aOnes} × {bOnes} = {right}
           </div>
         </div>
@@ -223,4 +266,3 @@ export const CrossGridVisual: React.FC<CrossGridVisualProps> = ({
     </div>
   );
 };
-

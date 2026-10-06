@@ -8,9 +8,10 @@ import {
   RotateCcw,
   MapPin,
   CheckCircle2,
+  Volume2,
 } from 'lucide-react';
 import { ProgressV1 } from '../services/store';
-import { playFanfare } from '../services/audio';
+import { playFanfare, speakNarration, stopNarration } from '../services/audio';
 
 interface CelebrationScreenProps {
   progress: ProgressV1;
@@ -31,6 +32,17 @@ export const CelebrationScreen: React.FC<CelebrationScreenProps> = ({
 
   useEffect(() => {
     playFanfare(soundEnabled);
+    speakNarration(
+      'Congratulations, Master! You have demonstrated extraordinary mental fluency across all three gates of the Mental Math Bazaar. Your mental agility is legendary!',
+      !soundEnabled
+    );
+
+    return () => {
+      stopNarration();
+    };
+  }, [soundEnabled]);
+
+  useEffect(() => {
     // Launch celebratory confetti cascade
     const duration = 2.5 * 1000;
     const end = Date.now() + duration;
@@ -70,9 +82,24 @@ export const CelebrationScreen: React.FC<CelebrationScreenProps> = ({
         <h2 className="font-display font-black text-3xl sm:text-5xl text-ink">
           Congratulations, Master!
         </h2>
-        <p className="text-base sm:text-lg font-semibold text-ink-soft max-w-lg mx-auto">
-          You have unlocked the inner secrets of arithmetic, Vedic shortcuts, and mental agility.
-        </p>
+        <div className="flex items-center justify-center gap-2">
+          <p className="text-base sm:text-lg font-semibold text-ink-soft max-w-lg">
+            You have unlocked the inner secrets of arithmetic, Vedic shortcuts, and mental agility.
+          </p>
+          <button
+            type="button"
+            onClick={() =>
+              speakNarration(
+                `Congratulations ${learnerName}! You have demonstrated extraordinary fluency across all three gates of Quick Minds Mental Math.`,
+                !soundEnabled
+              )
+            }
+            className="p-2 bg-paper hover:bg-amber-100 text-ink-muted hover:text-amber-700 rounded-2xl border border-ink/15 transition-all shadow-xs cursor-pointer shrink-0"
+            title="Listen to award citation"
+          >
+            <Volume2 className="w-5 h-5 text-amber-600" />
+          </button>
+        </div>
       </div>
 
       {/* Printable Certificate Frame */}

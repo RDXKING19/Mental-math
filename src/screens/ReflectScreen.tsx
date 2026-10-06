@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
   Star,
@@ -9,11 +9,12 @@ import {
   CheckCircle2,
   ArrowRight,
   Brain,
+  Volume2,
 } from 'lucide-react';
 import { ProgressV1 } from '../services/store';
 import { TRICK_SCROLLS } from '../content/gatesData';
 import { MascotGanu } from '../ui/MascotGanu';
-import { playCorrect, playTap } from '../services/audio';
+import { playCorrect, playTap, speakNarration, stopNarration } from '../services/audio';
 
 interface ReflectScreenProps {
   progress: ProgressV1;
@@ -30,6 +31,13 @@ export const ReflectScreen: React.FC<ReflectScreenProps> = ({
   onBackToMap,
   soundEnabled = true,
 }) => {
+  // Stop narration on unmount
+  useEffect(() => {
+    return () => {
+      stopNarration();
+    };
+  }, []);
+
   const [teachText, setTeachText] = useState(progress.reflections.teachGanu || '');
   const [ganuResponse, setGanuResponse] = useState<string | null>(
     progress.reflections.teachGanu
@@ -58,15 +66,15 @@ export const ReflectScreen: React.FC<ReflectScreenProps> = ({
     if (teachText.trim().length < 15) return;
     playCorrect(soundEnabled);
     onSaveReflection(teachText);
-    setGanuResponse(
-      `"Aha! Brilliant explanation of ${
-        teachText.toLowerCase().includes('nikhilam')
-          ? 'Nikhilam deficits'
-          : teachText.toLowerCase().includes('5')
-          ? 'squares ending in 5'
-          : 'mental calculation'
-      }! You truly understand how the gears turn."`
-    );
+    const reply = `Aha! Brilliant explanation of ${
+      teachText.toLowerCase().includes('nikhilam')
+        ? 'Nikhilam deficits'
+        : teachText.toLowerCase().includes('5')
+        ? 'squares ending in 5'
+        : 'mental calculation'
+    }! You truly understand how the gears turn.`;
+    setGanuResponse(`"${reply}"`);
+    speakNarration(reply, !soundEnabled);
   };
 
   const handleConfidenceChange = (gate: 1 | 2 | 3, val: number) => {
@@ -169,12 +177,27 @@ export const ReflectScreen: React.FC<ReflectScreenProps> = ({
 
       {/* 3. Teach Ganu Section */}
       <div className="p-5 sm:p-7 bg-card paper-card border-2 border-ink/15 shadow-warm space-y-4">
-        <div className="flex items-start gap-4">
+        <div className="flex items-start justify-between gap-4">
           <MascotGanu
             mood="happy"
             size="md"
             speech={ganuResponse || "Explain one trick you mastered to me, with a real example! Teaching others is the ultimate proof of genuine mastery."}
+            className="flex-1"
           />
+          <button
+            type="button"
+            onClick={() =>
+              speakNarration(
+                ganuResponse ||
+                  "Explain one trick you mastered to me, with a real example! Teaching others is the ultimate proof of genuine mastery.",
+                !soundEnabled
+              )
+            }
+            className="p-2 sm:p-2.5 bg-paper hover:bg-amber-100 text-ink-muted hover:text-amber-700 rounded-2xl border border-ink/15 transition-all shadow-xs cursor-pointer shrink-0"
+            title="Listen to Ganu"
+          >
+            <Volume2 className="w-5 h-5 text-amber-600" />
+          </button>
         </div>
 
         <form onSubmit={handleTeachSubmit} className="space-y-3">

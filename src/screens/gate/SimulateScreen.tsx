@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Compass,
   CheckCircle2,
@@ -8,6 +8,7 @@ import {
   Sparkles,
   Bot,
   AlertCircle,
+  Volume2,
 } from 'lucide-react';
 import { GateId } from '../../engine/types';
 import { GATES, ActivityDef } from '../../content/gatesData';
@@ -17,7 +18,7 @@ import { BaseBalance } from '../../ui/BaseBalance';
 import { CrossGridVisual } from '../../ui/CrossGridVisual';
 import { ClickBot } from '../../ui/ClickBot';
 import { NumericKeypad } from '../../ui/NumericKeypad';
-import { playCorrect, playTryAgain, playTap } from '../../services/audio';
+import { playCorrect, playTryAgain, playTap, speakNarration, stopNarration } from '../../services/audio';
 
 interface SimulateScreenProps {
   gate: GateId;
@@ -59,12 +60,20 @@ export const SimulateScreen: React.FC<SimulateScreenProps> = ({
   const [duelRound, setDuelRound] = useState(1);
   const [duelPlayerScore, setDuelPlayerScore] = useState(0);
 
+  // Stop narration on unmount
+  useEffect(() => {
+    return () => {
+      stopNarration();
+    };
+  }, []);
+
   const currentActivity: ActivityDef =
     activities.find(
       a => a.station === selectedStation && a.activityIndex === selectedActivityIndex
     ) || activities[0];
 
   const handleSelectActivity = (station: 1 | 2 | 3, index: 0 | 1 | 2) => {
+    stopNarration();
     playTap(soundEnabled);
     setSelectedStation(station);
     setSelectedActivityIndex(index);
@@ -231,28 +240,55 @@ export const SimulateScreen: React.FC<SimulateScreenProps> = ({
         <div className="flex-1 bg-card paper-card border-2 border-ink/15 shadow-warm p-4 sm:p-7 overflow-y-auto flex flex-col justify-between">
           <div>
             {/* Activity Info Header */}
-            <div className="mb-4">
-              <span className="text-xs sm:text-sm font-mono font-bold text-teal uppercase tracking-wider">
-                {currentActivity.stationTitle}
-              </span>
-              <h3 className="font-display font-black text-2xl sm:text-3xl text-ink mt-0.5">
-                {currentActivity.title}
-              </h3>
-              <p className="text-sm sm:text-base font-semibold text-ink-soft mt-1">
-                {currentActivity.instruction}
-              </p>
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <span className="text-xs sm:text-sm font-mono font-bold text-teal uppercase tracking-wider">
+                  {currentActivity.stationTitle}
+                </span>
+                <h3 className="font-display font-black text-2xl sm:text-3xl text-ink mt-0.5">
+                  {currentActivity.title}
+                </h3>
+                <p className="text-sm sm:text-base font-semibold text-ink-soft mt-1">
+                  {currentActivity.instruction}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  speakNarration(
+                    `${currentActivity.title}. ${currentActivity.instruction}. Pro tip from Ganu: ${currentActivity.rule}`,
+                    !soundEnabled
+                  )
+                }
+                className="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-2xl transition-all shadow-xs flex items-center gap-1.5 font-display font-black text-xs sm:text-sm cursor-pointer shrink-0 active:scale-95"
+                title="Listen to activity explanation"
+              >
+                <Volume2 className="w-4 h-4 text-amber-600" />
+                <span className="hidden sm:inline">Explain Activity</span>
+              </button>
             </div>
 
             {/* Hint Banner if requested */}
             {showHint && (
-              <div className="mb-4 p-4 bg-amber-500/15 rounded-2xl border-2 border-amber-500/50 flex items-start gap-3 text-sm text-ink font-medium animate-in fade-in duration-200">
-                <HelpCircle className="w-5 h-5 text-saffron shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block text-saffron font-display font-black">
-                    Strategy Tip from Ganu:
-                  </strong>
-                  <span className="text-ink-soft font-semibold">{currentActivity.rule}</span>
+              <div className="mb-4 p-4 bg-amber-500/15 rounded-2xl border-2 border-amber-500/50 flex items-start justify-between gap-3 text-sm text-ink font-medium animate-in fade-in duration-200">
+                <div className="flex items-start gap-3">
+                  <HelpCircle className="w-5 h-5 text-saffron shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="block text-saffron font-display font-black">
+                      Strategy Tip from Ganu:
+                    </strong>
+                    <span className="text-ink-soft font-semibold">{currentActivity.rule}</span>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => speakNarration(currentActivity.rule, !soundEnabled)}
+                  className="p-1.5 text-ink-muted hover:text-amber-600 rounded-lg shrink-0 cursor-pointer"
+                  title="Listen to hint"
+                >
+                  <Volume2 className="w-4 h-4" />
+                </button>
               </div>
             )}
 
@@ -327,7 +363,9 @@ export const SimulateScreen: React.FC<SimulateScreenProps> = ({
                       disabled={typedInput !== '40'}
                       onClick={() => {
                         handleCompleteCurrent();
-                        setFeedbackMsg('Brilliant! 47 + 40 = 87, minus 1 = 86.');
+                        const msg = 'Brilliant! 47 + 40 = 87, minus 1 = 86.';
+                        setFeedbackMsg(msg);
+                        speakNarration(msg, !soundEnabled);
                       }}
                       className="px-5 py-3 rounded-2xl font-mono text-base font-bold bg-card hover:bg-paper border border-ink/15 text-ink disabled:opacity-40 transition-all cursor-pointer"
                     >
@@ -363,7 +401,9 @@ export const SimulateScreen: React.FC<SimulateScreenProps> = ({
                       type="button"
                       onClick={() => {
                         handleCompleteCurrent();
-                        setFeedbackMsg('17 × 9 = 170 − 17 = 153! The Nine Machine never fails.');
+                        const msg = '17 times 9 equals 170 minus 17 which equals 153! The Nine Machine never fails.';
+                        setFeedbackMsg(msg);
+                        speakNarration(msg, !soundEnabled);
                       }}
                       className="px-7 py-3.5 bg-saffron hover:bg-saffron-hover text-white font-display font-black text-base sm:text-lg rounded-2xl shadow-warm cursor-pointer transition-all active:scale-95 drop-shadow-sm"
                     >
@@ -393,10 +433,14 @@ export const SimulateScreen: React.FC<SimulateScreenProps> = ({
                           setSelectedErrorLine(item.line);
                           if (item.line === 3) {
                             handleCompleteCurrent();
-                            setFeedbackMsg('Found it! Because you subtracted 50 (2 too much), you must ADD 2 back (+2), giving 35!');
+                            const msg = 'Found it! Because you subtracted 50 (2 too much), you must ADD 2 back (+2), giving 35!';
+                            setFeedbackMsg(msg);
+                            speakNarration(msg, !soundEnabled);
                           } else {
                             playTryAgain(soundEnabled);
-                            setFeedbackMsg('This line is correct. Look closely at the final adjustment fix!');
+                            const msg = 'This line is correct. Look closely at the final adjustment fix!';
+                            setFeedbackMsg(msg);
+                            speakNarration(msg, !soundEnabled);
                           }
                         }}
                         className={`w-full text-left p-4 rounded-2xl border text-sm sm:text-base font-mono font-bold transition-all cursor-pointer ${

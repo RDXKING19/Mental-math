@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ArrowRight, RotateCcw, CheckCircle, Sparkles } from 'lucide-react';
-import { playStep, playCorrect } from '../services/audio';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, RotateCcw, CheckCircle, Sparkles, Volume2 } from 'lucide-react';
+import { playStep, playCorrect, speakNarration, stopNarration } from '../services/audio';
 
 interface NumberLineHopperProps {
   start?: number;
@@ -28,6 +28,13 @@ export const NumberLineHopper: React.FC<NumberLineHopperProps> = ({
   // Hopper avatar position X coordinate on the SVG axis
   const hopperPositions = [80, 260, 420];
 
+  // Stop narration on unmount
+  useEffect(() => {
+    return () => {
+      stopNarration();
+    };
+  }, []);
+
   const handleHopTens = () => {
     if (stage !== 0) return;
     setIsJumping(true);
@@ -35,6 +42,10 @@ export const NumberLineHopper: React.FC<NumberLineHopperProps> = ({
     setTimeout(() => {
       setStage(1);
       setIsJumping(false);
+      speakNarration(
+        `Hopped plus ${hopTens}! ${start} plus ${hopTens} equals ${mid}. Now hop the ones!`,
+        !soundEnabled
+      );
     }, 350);
   };
 
@@ -45,20 +56,32 @@ export const NumberLineHopper: React.FC<NumberLineHopperProps> = ({
     setTimeout(() => {
       setStage(2);
       setIsJumping(false);
+      speakNarration(
+        `Hopped plus ${hopOnes}! ${mid} plus ${hopOnes} equals ${target}. Target reached!`,
+        !soundEnabled
+      );
       onComplete?.();
     }, 350);
   };
 
   const handleReset = () => {
+    stopNarration();
     playStep(soundEnabled);
     setStage(0);
     setIsJumping(false);
   };
 
+  const handleGuideMe = () => {
+    speakNarration(
+      'Welcome to the Number Line Hopper! Mental math is easier when you jump in friendly chunks. First, click Jump Tens to make a big forward leap of friendly tens. Then click Jump Ones to make the final quick hop to your answer!',
+      !soundEnabled
+    );
+  };
+
   return (
     <div className={`p-5 sm:p-7 bg-card paper-card border-2 border-ink/15 shadow-warm ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <span className="font-display font-black text-xs sm:text-sm uppercase tracking-wider text-teal flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-saffron" /> Number Line Hopper
@@ -71,15 +94,28 @@ export const NumberLineHopper: React.FC<NumberLineHopperProps> = ({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleReset}
-          className="p-2.5 text-ink-muted hover:text-ink hover:bg-paper rounded-2xl border border-ink/10 transition-all flex items-center gap-1.5 text-xs font-bold"
-          title="Reset Hops"
-        >
-          <RotateCcw className="w-4 h-4" />
-          <span className="hidden sm:inline">Reset</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Guide Me voice narration */}
+          <button
+            type="button"
+            onClick={handleGuideMe}
+            className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-full font-display font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
+            title="Listen to how Number Line Hopper works"
+          >
+            <Volume2 className="w-4 h-4 text-amber-600" />
+            <span>Guide Me</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleReset}
+            className="p-2.5 text-ink-muted hover:text-ink hover:bg-paper rounded-2xl border border-ink/10 transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+            title="Reset Hops"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span className="hidden sm:inline">Reset</span>
+          </button>
+        </div>
       </div>
 
       {/* SVG Interactive Line with Hopper */}
@@ -260,4 +296,3 @@ export const NumberLineHopper: React.FC<NumberLineHopperProps> = ({
     </div>
   );
 };
-

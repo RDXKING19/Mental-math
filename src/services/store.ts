@@ -3,6 +3,9 @@ import { GateId } from '../engine/types';
 export interface Settings {
   muted: boolean;
   soundEffects: boolean;
+  autoNarrate: boolean;    // Automatically read story slides and wonder questions aloud
+  voiceId: string;         // Selected ElevenLabs voice ID
+  elevenLabsKey: string;   // ElevenLabs API key
   calmMode: boolean;       // No timers, no heart limit, unlimited retries
   captions: boolean;
   theme: 'paper' | 'focus' | 'emerald' | 'sunset' | 'onyx' | 'cream';
@@ -57,6 +60,10 @@ export function createDefaultProgress(): ProgressV1 {
     settings: {
       muted: false,
       soundEffects: true,
+      autoNarrate: true,
+      voiceId: '21m00Tcm4TlvDq8ikWAM',
+      elevenLabsKey:
+        (typeof import.meta !== 'undefined' && import.meta.env?.VITE_ELEVENLABS_API_KEY) || '',
       calmMode: false,
       captions: true,
       theme: 'cream',
@@ -110,9 +117,13 @@ export function loadProgress(): ProgressV1 {
     if (parsed && parsed.schema === 1 && parsed.gates) {
       if (!parsed.claimedQuestIds) parsed.claimedQuestIds = [];
       if (!parsed.badges) parsed.badges = [];
-      // Set Golden Dawn as default if previously set to paper or undefined
-      if (!parsed.settings || parsed.settings.theme === 'paper') {
-        parsed.settings = { ...(parsed.settings || {}), theme: 'cream' };
+      const defaults = createDefaultProgress().settings;
+      parsed.settings = {
+        ...defaults,
+        ...(parsed.settings || {}),
+      };
+      if (parsed.settings.theme === 'paper') {
+        parsed.settings.theme = 'cream';
       }
       return parsed as ProgressV1;
     }

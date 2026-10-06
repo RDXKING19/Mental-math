@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Sparkles, RotateCcw, Play, CheckCircle2 } from 'lucide-react';
-import { playStep, playCorrect } from '../services/audio';
+import React, { useState, useEffect, useRef } from 'react';
+import { Sparkles, RotateCcw, Play, Volume2 } from 'lucide-react';
+import { playStep, playCorrect, speakNarration, stopNarration } from '../services/audio';
 
 interface BeadRailProps {
   initialValue?: number;
@@ -24,6 +24,15 @@ export const BeadRail: React.FC<BeadRailProps> = ({
   const [onesLower, setOnesLower] = useState(2); // 2 -> 47
 
   const [isDemoRunning, setIsDemoRunning] = useState(false);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Stop narration and clear demo timeouts on unmount
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(t => clearTimeout(t));
+      stopNarration();
+    };
+  }, []);
 
   const currentValue =
     (tensUpper ? 50 : 0) +
@@ -61,11 +70,15 @@ export const BeadRail: React.FC<BeadRailProps> = ({
     const val = (tu ? 50 : 0) + tl * 10 + (ou ? 5 : 0) + ol;
     if (val === targetValue) {
       playCorrect(soundEnabled);
+      speakNarration(`Target ${targetValue} reached! Excellent abacus calculation!`, !soundEnabled);
       onTargetReached?.();
     }
   };
 
   const handleReset = () => {
+    timersRef.current.forEach(t => clearTimeout(t));
+    timersRef.current = [];
+    stopNarration();
     playStep(soundEnabled);
     setTensUpper(false);
     setTensLower(4);
@@ -74,38 +87,58 @@ export const BeadRail: React.FC<BeadRailProps> = ({
     setIsDemoRunning(false);
   };
 
+  const handleGuideMe = () => {
+    speakNarration(
+      'Welcome to the Soroban Abacus! The upper deck beads are Heaven beads, each worth 5. The lower deck beads are Earth beads, each worth 1. Beads only count when you push them toward the center beam! Try clicking beads to match the goal, or click Regroup Demo to see regrouping in action.',
+      !soundEnabled
+    );
+  };
+
   const handleAutoSolve = () => {
+    timersRef.current.forEach(t => clearTimeout(t));
+    timersRef.current = [];
     setIsDemoRunning(true);
     playStep(soundEnabled);
 
-    // Step 1: Add 30 to tens
-    setTimeout(() => {
-      setTensUpper(true);
-      setTensLower(2); // 50 + 20 = 70
-      playStep(soundEnabled);
-    }, 500);
+    speakNarration(
+      'Step 1: Adding 30 to the tens column. Push down 50 and two tens.',
+      !soundEnabled
+    );
 
-    // Step 2: Add 8 to ones (5+2 = 7; 7+8 = 15 -> regroups 10 ones into 1 ten, leaving 5)
-    setTimeout(() => {
+    // Step 1: Add 30 to tens (50 + 20 = 70)
+    const t1 = setTimeout(() => {
+      setTensUpper(true);
+      setTensLower(2);
+      playStep(soundEnabled);
+    }, 900);
+
+    // Step 2: Add 8 to ones (5+2 = 7; 7+8 = 15 -> regroups 10 ones into 1 ten, leaving 5 -> 85)
+    const t2 = setTimeout(() => {
       setTensUpper(true);
       setTensLower(3); // 50 + 30 = 80
       setOnesUpper(true);
       setOnesLower(0); // 5 -> Total 85!
       playCorrect(soundEnabled);
       setIsDemoRunning(false);
+      speakNarration(
+        'Step 2: Ten ones regroup into one ten! Reached goal 85!',
+        !soundEnabled
+      );
       onTargetReached?.();
-    }, 1200);
+    }, 2800);
+
+    timersRef.current = [t1, t2];
   };
 
   const isMatched = currentValue === targetValue;
 
   return (
     <div className={`p-4 sm:p-6 bg-card paper-card border-2 border-ink/15 shadow-warm ${className}`}>
-      {/* Abacus Display Header (Massive typography) */}
-      <div className="flex items-center justify-between mb-4">
+      {/* Abacus Display Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
-          <span className="font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider text-saffron">
-            Interactive Soroban Abacus
+          <span className="font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider text-saffron flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-saffron" /> Interactive Soroban Abacus
           </span>
           <div className="flex items-baseline gap-3">
             <span className="font-mono text-4xl sm:text-5xl font-black text-ink">
@@ -120,6 +153,17 @@ export const BeadRail: React.FC<BeadRailProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Guide Me Narration Button */}
+          <button
+            type="button"
+            onClick={handleGuideMe}
+            className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-full font-display font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
+            title="Listen to how the abacus works"
+          >
+            <Volume2 className="w-4 h-4 text-amber-600" />
+            <span>Guide Me</span>
+          </button>
+
           {isMatched ? (
             <span className="px-3.5 py-1.5 bg-teal-light text-teal border border-teal/40 rounded-full font-display font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-sm animate-bounce">
               <Sparkles className="w-4 h-4" /> Target Reached!
@@ -129,7 +173,7 @@ export const BeadRail: React.FC<BeadRailProps> = ({
               type="button"
               onClick={handleAutoSolve}
               disabled={isDemoRunning}
-              className="px-3.5 py-1.5 bg-saffron-light hover:bg-saffron text-ink hover:text-white border border-saffron/40 rounded-full font-display font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-40"
+              className="px-3.5 py-1.5 bg-saffron-light hover:bg-saffron text-ink hover:text-white border border-saffron/40 rounded-full font-display font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm active:scale-95 disabled:opacity-40 cursor-pointer"
               title="Show Animated Regrouping Demo"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
@@ -140,7 +184,7 @@ export const BeadRail: React.FC<BeadRailProps> = ({
           <button
             type="button"
             onClick={handleReset}
-            className="p-2 text-ink-muted hover:text-ink hover:bg-paper rounded-xl transition-all border border-ink/10"
+            className="p-2 text-ink-muted hover:text-ink hover:bg-paper rounded-xl transition-all border border-ink/10 cursor-pointer"
             title="Reset Beads"
           >
             <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -160,18 +204,22 @@ export const BeadRail: React.FC<BeadRailProps> = ({
         <div className="h-full flex justify-around px-6">
           {/* TENS COLUMN */}
           <div className="relative w-16 h-full flex flex-col items-center">
-            {/* Wooden Rod */}
-            <div className="absolute top-0 bottom-0 w-2 bg-[#5A3816] -z-0 rounded" />
-            <span className="text-xs font-mono font-black text-[#3E1F07] mb-1 z-10">
-              TENS
-            </span>
+            {/* Wooden Rod - starts cleanly below header badge so it NEVER intersects the label text */}
+            <div className="absolute top-7 bottom-1 w-2 bg-[#5A3816] z-0 rounded-sm" />
+
+            {/* Column Label Plaque with solid background for zero overlap */}
+            <div className="z-20 px-2.5 py-0.5 mb-1 rounded-md bg-[#F4DFC8] border border-[#78461E]/40 shadow-xs flex items-center justify-center">
+              <span className="text-[11px] font-mono font-black tracking-wider text-[#4A2609]">
+                TENS
+              </span>
+            </div>
 
             {/* Upper Deck (Heaven Bead, value 50) */}
             <div className="h-16 w-full flex items-center justify-center z-10">
               <button
                 type="button"
                 onClick={handleToggleTensUpper}
-                className={`w-14 h-7 rounded-full border-2 border-[#542B09] transition-all transform duration-150 shadow-md ${
+                className={`w-14 h-7 rounded-full border-2 border-[#542B09] transition-all transform duration-150 shadow-md cursor-pointer ${
                   tensUpper
                     ? 'translate-y-2 bg-[#FF9F1C] bead-shadow scale-105'
                     : '-translate-y-2 bg-[#D17E10]'
@@ -192,7 +240,7 @@ export const BeadRail: React.FC<BeadRailProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleSetTensLower(isActive ? idx - 1 : idx)}
-                    className={`w-14 h-7 mx-auto rounded-full border-2 border-[#542B09] transition-all duration-150 shadow-md ${
+                    className={`w-14 h-7 mx-auto rounded-full border-2 border-[#542B09] transition-all duration-150 shadow-md cursor-pointer ${
                       isActive
                         ? '-translate-y-2 bg-[#FF9F1C] bead-shadow scale-105'
                         : 'translate-y-0 bg-[#D17E10]'
@@ -206,18 +254,22 @@ export const BeadRail: React.FC<BeadRailProps> = ({
 
           {/* ONES COLUMN */}
           <div className="relative w-16 h-full flex flex-col items-center">
-            {/* Wooden Rod */}
-            <div className="absolute top-0 bottom-0 w-2 bg-[#5A3816] -z-0 rounded" />
-            <span className="text-xs font-mono font-black text-[#3E1F07] mb-1 z-10">
-              ONES
-            </span>
+            {/* Wooden Rod - starts cleanly below header badge so it NEVER intersects the label text */}
+            <div className="absolute top-7 bottom-1 w-2 bg-[#5A3816] z-0 rounded-sm" />
+
+            {/* Column Label Plaque with solid background for zero overlap */}
+            <div className="z-20 px-2.5 py-0.5 mb-1 rounded-md bg-[#D1FAE5] border border-[#0A574D]/30 shadow-xs flex items-center justify-center">
+              <span className="text-[11px] font-mono font-black tracking-wider text-[#065F46]">
+                ONES
+              </span>
+            </div>
 
             {/* Upper Deck (Heaven Bead, value 5) */}
             <div className="h-16 w-full flex items-center justify-center z-10">
               <button
                 type="button"
                 onClick={handleToggleOnesUpper}
-                className={`w-14 h-7 rounded-full border-2 border-[#0A574D] transition-all transform duration-150 shadow-md ${
+                className={`w-14 h-7 rounded-full border-2 border-[#0A574D] transition-all transform duration-150 shadow-md cursor-pointer ${
                   onesUpper
                     ? 'translate-y-2 bg-[#10B981] bead-shadow scale-105'
                     : '-translate-y-2 bg-[#059669]'
@@ -238,7 +290,7 @@ export const BeadRail: React.FC<BeadRailProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleSetOnesLower(isActive ? idx - 1 : idx)}
-                    className={`w-14 h-7 mx-auto rounded-full border-2 border-[#0A574D] transition-all duration-150 shadow-md ${
+                    className={`w-14 h-7 mx-auto rounded-full border-2 border-[#0A574D] transition-all duration-150 shadow-md cursor-pointer ${
                       isActive
                         ? '-translate-y-2 bg-[#10B981] bead-shadow scale-105'
                         : 'translate-y-0 bg-[#059669]'

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ArrowRight, Sparkles, Scale, RotateCcw, CheckCircle } from 'lucide-react';
-import { playStep, playCorrect } from '../services/audio';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, Sparkles, Scale, RotateCcw, CheckCircle, Volume2 } from 'lucide-react';
+import { playStep, playCorrect, speakNarration, stopNarration } from '../services/audio';
 
 interface BaseBalanceProps {
   a?: number; // e.g. 97
@@ -25,20 +25,43 @@ export const BaseBalance: React.FC<BaseBalanceProps> = ({
   const rightPart = da * db; // 18
   const answer = a * b; // 9118
 
+  // Stop narration on unmount
+  useEffect(() => {
+    return () => {
+      stopNarration();
+    };
+  }, []);
+
   const handleNextStep = () => {
     if (step === 0) {
       playStep(soundEnabled);
       setStep(1);
+      speakNarration(
+        `Step 1: Cross-subtracting ${a} minus ${db} gives ${leftPart} as the left part!`,
+        !soundEnabled
+      );
     } else if (step === 1) {
       playCorrect(soundEnabled);
       setStep(2);
+      speakNarration(
+        `Step 2: Multiplying deficits ${da} times ${db} gives ${rightPart}. Combined result is ${answer}! Balanced!`,
+        !soundEnabled
+      );
       onComplete?.();
     }
   };
 
   const handleReset = () => {
+    stopNarration();
     playStep(soundEnabled);
     setStep(0);
+  };
+
+  const handleGuideMe = () => {
+    speakNarration(
+      'Welcome to Nikhilam Base Balance! When two numbers are close to 100, calculate their deficits from 100. Step 1: Cross-subtract either deficit to find the left part. Step 2: Multiply both deficits to find the right part. Combine them together for the instant final answer!',
+      !soundEnabled
+    );
   };
 
   // Rotation angles for scale beam:
@@ -50,7 +73,7 @@ export const BaseBalance: React.FC<BaseBalanceProps> = ({
   return (
     <div className={`p-5 sm:p-7 bg-card paper-card border-2 border-ink/15 shadow-warm ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <span className="font-display font-black text-xs sm:text-sm uppercase tracking-wider text-teal flex items-center gap-1.5">
             <Scale className="w-4 h-4 text-teal" /> Nikhilam Base Balance (Base 100)
@@ -63,15 +86,28 @@ export const BaseBalance: React.FC<BaseBalanceProps> = ({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleReset}
-          className="p-2.5 text-ink-muted hover:text-ink hover:bg-paper rounded-2xl border border-ink/10 transition-all flex items-center gap-1.5 text-xs font-bold"
-          title="Reset Balance"
-        >
-          <RotateCcw className="w-4 h-4" />
-          <span className="hidden sm:inline">Reset</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Guide Me voice narration */}
+          <button
+            type="button"
+            onClick={handleGuideMe}
+            className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-full font-display font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
+            title="Listen to how Base Balance works"
+          >
+            <Volume2 className="w-4 h-4 text-amber-600" />
+            <span>Guide Me</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleReset}
+            className="p-2.5 text-ink-muted hover:text-ink hover:bg-paper rounded-2xl border border-ink/10 transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+            title="Reset Balance"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span className="hidden sm:inline">Reset</span>
+          </button>
+        </div>
       </div>
 
       {/* SVG Balance Scale Display with Physics Tilt */}
@@ -138,8 +174,8 @@ export const BaseBalance: React.FC<BaseBalanceProps> = ({
                 strokeWidth="3.5"
                 strokeDasharray="6 3"
               />
-              <rect x="170" y="16" width="80" height="24" rx="6" fill="#D1FAE5" stroke="#059669" strokeWidth="1.5" />
-              <text x="210" y="32" textAnchor="middle" fill="#047857" className="font-mono font-black text-xs sm:text-sm">
+              <rect x="158" y="14" width="104" height="26" rx="8" fill="#D1FAE5" stroke="#059669" strokeWidth="1.5" />
+              <text x="210" y="31" textAnchor="middle" fill="#047857" className="font-mono font-black text-xs sm:text-sm">
                 {a} − {db} = {leftPart}
               </text>
             </g>
@@ -242,4 +278,3 @@ export const BaseBalance: React.FC<BaseBalanceProps> = ({
     </div>
   );
 };
-

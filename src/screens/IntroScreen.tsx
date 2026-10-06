@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import {
   Sparkles,
@@ -14,9 +14,11 @@ import {
   CheckCircle2,
   Lock,
   RotateCcw,
+  Volume2,
 } from 'lucide-react';
 import { MascotGanu } from '../ui/MascotGanu';
 import { getPlayerLevel } from '../engine/gamification';
+import { playCorrect, playTryAgain, speakNarration, stopNarration } from '../services/audio';
 
 interface IntroScreenProps {
   onBegin: () => void;
@@ -111,6 +113,13 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
 }) => {
   const levelInfo = getPlayerLevel(xp);
 
+  // Stop any voice narration on unmount
+  useEffect(() => {
+    return () => {
+      stopNarration();
+    };
+  }, []);
+
   // Interactive Daily Brain Spark mini-game state
   const [sparkIndex, setSparkIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -126,6 +135,8 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
 
     if (option === currentSpark.answer) {
       setIsCorrect(true);
+      playCorrect(true);
+      speakNarration(`Spectacular! ${currentSpark.explanation}`);
       confetti({
         particleCount: 50,
         spread: 60,
@@ -136,6 +147,8 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
       onIncrementStreak?.();
     } else {
       setIsCorrect(false);
+      playTryAgain(true);
+      speakNarration(`Almost! ${currentSpark.explanation}`);
     }
   };
 
@@ -362,8 +375,18 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
             <span className="text-xs font-mono font-bold text-amber-800 uppercase tracking-wider block">
               Vedic Shortcut: {currentSpark.trickName}
             </span>
-            <div className="text-3xl sm:text-4xl font-mono font-black text-ink tracking-wide">
-              {currentSpark.question}
+            <div className="flex items-center gap-3">
+              <div className="text-3xl sm:text-4xl font-mono font-black text-ink tracking-wide">
+                {currentSpark.question}
+              </div>
+              <button
+                type="button"
+                onClick={() => speakNarration(currentSpark.question)}
+                className="p-2 text-ink-muted hover:text-amber-600 hover:bg-paper rounded-xl transition-all cursor-pointer"
+                title="Read question aloud"
+              >
+                <Volume2 className="w-5 h-5 text-amber-600" />
+              </button>
             </div>
           </div>
 

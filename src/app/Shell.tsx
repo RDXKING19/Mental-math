@@ -23,7 +23,7 @@ import { PracticeSelectScreen } from '../screens/gate/PracticeSelectScreen';
 import { PracticePlayScreen } from '../screens/gate/PracticePlayScreen';
 import { ReflectScreen } from '../screens/ReflectScreen';
 import { CelebrationScreen } from '../screens/CelebrationScreen';
-import { stopNarration } from '../services/audio';
+import { stopNarration, setNarrationVoice, setElevenLabsKey } from '../services/audio';
 
 export const Shell: React.FC = () => {
   const [progress, setProgress] = useState<ProgressV1>(() => loadProgress());
@@ -40,6 +40,16 @@ export const Shell: React.FC = () => {
   useEffect(() => {
     saveProgress(progress);
   }, [progress]);
+
+  // Sync ElevenLabs Voice and Key whenever updated
+  useEffect(() => {
+    if (progress.settings.voiceId) {
+      setNarrationVoice(progress.settings.voiceId);
+    }
+    if (progress.settings.elevenLabsKey) {
+      setElevenLabsKey(progress.settings.elevenLabsKey);
+    }
+  }, [progress.settings.voiceId, progress.settings.elevenLabsKey]);
 
   // Stop active speech whenever screen route changes
   useEffect(() => {
@@ -153,6 +163,11 @@ export const Shell: React.FC = () => {
     document.documentElement.setAttribute('data-theme', progress.settings.theme || 'cream');
   }, [progress.settings.textSize, progress.settings.theme]);
 
+  // Stop ongoing voice narration whenever screen or phase changes
+  useEffect(() => {
+    stopNarration();
+  }, [screen]);
+
   const handleToggleTextSize = () => {
     const current = progress.settings.textSize || 'large';
     const next: 'normal' | 'large' | 'xl' =
@@ -180,10 +195,16 @@ export const Shell: React.FC = () => {
         scrollCount={earnedScrolls}
         calmMode={progress.settings.calmMode}
         textSize={progress.settings.textSize || 'large'}
+        muted={progress.settings.muted}
         onNavigateHome={() => dispatch({ type: 'NAVIGATE_INTRO' })}
         onNavigateMap={() => dispatch({ type: 'NAVIGATE_MAP' })}
         onToggleCalm={() => handleUpdateSettings({ calmMode: !progress.settings.calmMode })}
         onToggleTextSize={handleToggleTextSize}
+        onToggleMute={() => {
+          const nextMuted = !progress.settings.muted;
+          if (nextMuted) stopNarration();
+          handleUpdateSettings({ muted: nextMuted });
+        }}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenTrickBook={() => setIsTrickBookOpen(true)}
         onOpenDailyQuests={() => setIsDailyQuestsOpen(true)}
@@ -228,6 +249,15 @@ export const Shell: React.FC = () => {
         {screen.kind === 'wonder' && (
           <WonderScreen
             gate={screen.gate}
+            muted={progress.settings.muted}
+            captions={progress.settings.captions}
+            autoNarrate={progress.settings.autoNarrate}
+            onToggleMute={() => {
+              const nextMuted = !progress.settings.muted;
+              if (nextMuted) stopNarration();
+              handleUpdateSettings({ muted: nextMuted });
+            }}
+            onToggleCaptions={() => handleUpdateSettings({ captions: !progress.settings.captions })}
             onContinue={() => dispatch({ type: 'NAVIGATE_STORY_SLIDE', gate: screen.gate, slideIndex: 0 })}
           />
         )}
@@ -236,6 +266,15 @@ export const Shell: React.FC = () => {
           <StoryScreen
             gate={screen.gate}
             initialSlideIndex={screen.slideIndex}
+            muted={progress.settings.muted}
+            captions={progress.settings.captions}
+            autoNarrate={progress.settings.autoNarrate}
+            onToggleMute={() => {
+              const nextMuted = !progress.settings.muted;
+              if (nextMuted) stopNarration();
+              handleUpdateSettings({ muted: nextMuted });
+            }}
+            onToggleCaptions={() => handleUpdateSettings({ captions: !progress.settings.captions })}
             onFinishStory={() =>
               dispatch({
                 type: 'NAVIGATE_SIMULATE',
@@ -259,7 +298,7 @@ export const Shell: React.FC = () => {
             initialStation={screen.station}
             initialActivityIndex={screen.activityIndex}
             calmMode={progress.settings.calmMode}
-            soundEnabled={progress.settings.soundEffects}
+            soundEnabled={!progress.settings.muted && progress.settings.soundEffects}
             onFinishSimulate={() => dispatch({ type: 'NAVIGATE_PRACTICE_SELECT', gate: screen.gate })}
             onUseHint={() => setProgress(prev => ({ ...prev, xp: Math.max(0, prev.xp - 3) }))}
           />
@@ -282,7 +321,7 @@ export const Shell: React.FC = () => {
             worldIndex={screen.worldIndex}
             sessionSeed={progress.sessionSeed}
             calmMode={progress.settings.calmMode}
-            soundEnabled={progress.settings.soundEffects}
+            soundEnabled={!progress.settings.muted && progress.settings.soundEffects}
             onFinishWorld={(stars, correctCount, earnedXp) => {
               handleFinishWorld(screen.gate, screen.worldIndex, stars, correctCount, earnedXp);
             }}
@@ -302,7 +341,7 @@ export const Shell: React.FC = () => {
             }}
             onFinishReflect={() => dispatch({ type: 'NAVIGATE_CELEBRATION' })}
             onBackToMap={() => dispatch({ type: 'NAVIGATE_MAP' })}
-            soundEnabled={progress.settings.soundEffects}
+            soundEnabled={!progress.settings.muted && progress.settings.soundEffects}
           />
         )}
 
@@ -310,7 +349,7 @@ export const Shell: React.FC = () => {
           <CelebrationScreen
             progress={progress}
             onBackToMap={() => dispatch({ type: 'NAVIGATE_MAP' })}
-            soundEnabled={progress.settings.soundEffects}
+            soundEnabled={!progress.settings.muted && progress.settings.soundEffects}
           />
         )}
       </main>

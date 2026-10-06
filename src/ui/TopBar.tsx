@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Home,
   MapPin,
@@ -10,10 +10,13 @@ import {
   Type,
   Target,
   Award,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { GateId, Phase } from '../engine/types';
 import { GATES } from '../content/gatesData';
 import { getPlayerLevel } from '../engine/gamification';
+import { subscribeNarration, NarrationState } from '../services/audio';
 
 interface TopBarProps {
   currentGate: GateId;
@@ -24,10 +27,12 @@ interface TopBarProps {
   scrollCount: number;
   calmMode: boolean;
   textSize: 'normal' | 'large' | 'xl';
+  muted?: boolean;
   onNavigateMap: () => void;
   onNavigateHome: () => void;
   onToggleCalm: () => void;
   onToggleTextSize: () => void;
+  onToggleMute?: () => void;
   onOpenSettings: () => void;
   onOpenTrickBook: () => void;
   onOpenDailyQuests?: () => void;
@@ -44,16 +49,30 @@ export const TopBar: React.FC<TopBarProps> = ({
   scrollCount,
   calmMode,
   textSize,
+  muted = false,
   onNavigateMap,
   onNavigateHome,
   onToggleCalm,
   onToggleTextSize,
+  onToggleMute,
   onOpenSettings,
   onOpenTrickBook,
   onOpenDailyQuests,
   onOpenAchievements,
   onSelectPhase,
 }) => {
+  const [narrationState, setNarrationState] = useState<NarrationState>({
+    status: 'idle',
+    currentText: '',
+    voiceName: 'Rachel',
+    isFallback: false,
+  });
+
+  useEffect(() => {
+    const unsub = subscribeNarration(setNarrationState);
+    return unsub;
+  }, []);
+
   const gateData = GATES[currentGate] || GATES[1];
   const levelInfo = getPlayerLevel(xp);
 
@@ -241,6 +260,37 @@ export const TopBar: React.FC<TopBarProps> = ({
         >
           <HeartHandshake className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
+
+        {/* Voice Narration & Audio Quick Toggle */}
+        {onToggleMute && (
+          <button
+            type="button"
+            onClick={onToggleMute}
+            className={`p-1.5 sm:p-2 rounded-xl border-2 transition-all cursor-pointer active:scale-95 shadow-xs relative flex items-center justify-center ${
+              muted
+                ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                : narrationState.status === 'playing'
+                ? 'bg-amber-100 text-amber-900 border-amber-500 shadow-warm animate-pulse'
+                : 'text-ink-muted hover:text-ink hover:bg-paper border-ink/15'
+            }`}
+            title={
+              muted
+                ? 'Audio Muted (Click to enable voice narration & sound effects)'
+                : narrationState.status === 'playing'
+                ? `Speaking (${narrationState.voiceName}) - Click to mute`
+                : 'Audio & Narration Active (Click to mute)'
+            }
+          >
+            {muted ? (
+              <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+            ) : (
+              <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
+            )}
+            {narrationState.status === 'playing' && (
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white animate-ping" />
+            )}
+          </button>
+        )}
 
         {/* Settings */}
         <button

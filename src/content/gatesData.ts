@@ -7,6 +7,7 @@ export interface StorySlide {
   quote: string;
   bubble: string;
   artType: 'market' | 'abacus' | 'roundFix' | 'doubleHalve' | 'eleven' | 'estimation' | 'scrolls' | 'square5' | 'balanceScale' | 'crossGrid' | 'fair' | 'picker' | 'tournament' | 'duplex' | 'seeSaw' | 'tower' | 'roots' | 'digitSum';
+  image?: string;
   trailDemo?: { label: string; note?: string }[];
 }
 
@@ -94,6 +95,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'When screens turn off, real mental agility turns on.',
         bubble: 'Don’t panic, Ira! Your brain is ten times faster than any silicone chip!',
         artType: 'market',
+        image: './images/story/g1_s1.jpg',
       },
       {
         id: 'g1-s2',
@@ -102,6 +104,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Find the companion pair, and the sum completes itself.',
         bubble: '64 needs 36 to make 100. 4 + 6 = 10, 60 + 30 + 10 = 100!',
         artType: 'abacus',
+        image: './images/story/g1_s2.jpg',
         trailDemo: [
           { label: '64 + 36', note: 'Spot friends of 10' },
           { label: '4 + 6 = 10', note: 'Units lock in' },
@@ -115,6 +118,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Jump to the friendly round number first, then trim the fix.',
         bubble: 'Always add the friendly 40, then subtract the 1 extra coin you borrowed!',
         artType: 'roundFix',
+        image: './images/story/g1_s3.jpg',
         trailDemo: [
           { label: '47 + 39', note: 'Awkward addition' },
           { label: '47 + 40 = 87', note: 'Friendly round hop' },
@@ -128,6 +132,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Times ten and cut in half: five is just half of ten.',
         bubble: 'Try it with any even number: 24 × 5 = 240 ÷ 2 = 120!',
         artType: 'doubleHalve',
+        image: './images/story/g1_s4.jpg',
         trailDemo: [
           { label: '36 × 5', note: 'Five is 10 ÷ 2' },
           { label: '36 × 10 = 360', note: 'Add a zero' },
@@ -141,6 +146,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Numbers have patterns written right on their faces.',
         bubble: '23 × 11: 2 in front, 3 in back, 5 in the middle. 253!',
         artType: 'eleven',
+        image: './images/story/g1_s5.jpg',
         trailDemo: [
           { label: '23 × 11', note: 'Peek pattern' },
           { label: '2 _ 3', note: 'Spread outer digits' },
@@ -155,6 +161,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'A mental mathematician never borrows: they look at the complement.',
         bubble: 'You are ready to enter the Practice Lab and earn your first Spark Scrolls!',
         artType: 'estimation',
+        image: './images/story/g1_s6.jpg',
       },
     ],
     activities: [
@@ -339,6 +346,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Named shortcuts give your memory a handle to hold onto.',
         bubble: 'Each sutra is a mental superpower: memorable, visual, and mathematically verified!',
         artType: 'scrolls',
+        image: './images/story/g2_s1.jpg',
       },
       {
         id: 'g2-s2',
@@ -347,6 +355,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Ekadhikena Purvena: By one more than the previous one.',
         bubble: '75² = (7 × 8) | 25 = 5625. In two seconds, without writing a single line!',
         artType: 'square5',
+        image: './images/story/g2_s2.jpg',
         trailDemo: [
           { label: '65²', note: 'Ends in 5' },
           { label: '6 × (6 + 1) = 42', note: 'One more than previous' },
@@ -360,6 +369,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'All from 9 and last from 10: base arithmetic balances on 100.',
         bubble: 'It works above 100 too: 104 × 103 = (104 + 3) | (4 × 3) = 10712!',
         artType: 'balanceScale',
+        image: './images/story/g2_s3.jpg',
         trailDemo: [
           { label: '94 × 98', note: 'Near base 100' },
           { label: 'Deficits: −6 and −2', note: 'Gaps from 100' },
@@ -374,6 +384,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Urdhva-Tiryagbhyam: Vertical and Crosswise multiplication.',
         bubble: 'Think of it as lightning bolts striking across the columns!',
         artType: 'crossGrid',
+        image: './images/story/g2_s4.jpg',
       },
       {
         id: 'g2-s5',
@@ -382,6 +393,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Choose the sharpest tool for the numbers in front of you.',
         bubble: 'Why multiply by 25 when you can just divide 36 by 4?',
         artType: 'fair',
+        image: './images/story/g2_s5.jpg',
       },
       {
         id: 'g2-s6',
@@ -390,6 +402,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Fluency is knowing not just how to calculate, but which path is fastest.',
         bubble: 'Step into Gate 2’s Flow and let calculation become a natural reflex!',
         artType: 'picker',
+        image: './images/story/g2_s6.jpg',
       },
     ],
     activities: [
@@ -574,6 +587,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Mastery is not just speed—it is absolute certainty and joy.',
         bubble: 'In Gate 3, we master general squaring, power roots, and instant proof checks!',
         artType: 'tournament',
+        image: './images/story/g3_s1.jpg',
       },
       {
         id: 'g3-s2',
@@ -582,6 +596,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Duplex extracts the square column by column without scratchpad paper.',
         bubble: 'Square first digit, double the product of digits, square last digit!',
         artType: 'duplex',
+        image: './images/story/g3_s2.jpg',
         trailDemo: [
           { label: '43²', note: 'Duplex method' },
           { label: '4² = 16', note: 'First digit' },
@@ -597,6 +612,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'When numbers are symmetric, the difference of squares eliminates the cross terms.',
         bubble: '50² is 2500, minus 9 is 2491. Effortless and beautiful!',
         artType: 'seeSaw',
+        image: './images/story/g3_s3.jpg',
       },
       {
         id: 'g3-s4',
@@ -605,6 +621,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Any size multiplication reduces to vertical and criss-cross stripes.',
         bubble: 'Pad with leading zeros to maintain uniform geometry.',
         artType: 'tower',
+        image: './images/story/g3_s4.jpg',
       },
       {
         id: 'g3-s5',
@@ -613,6 +630,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Perfect powers leave unmistakable fingerprints on their units digit.',
         bubble: '∛29791 ends in 1 → 1. 29 is between 27 and 64 → 3. The answer is 31!',
         artType: 'roots',
+        image: './images/story/g3_s5.jpg',
       },
       {
         id: 'g3-s6',
@@ -621,6 +639,7 @@ export const GATES: Record<GateId, GateData> = {
         quote: 'Digit sums give you instant proof that your mental calculation is flawless.',
         bubble: 'You have earned the title of Master! Step into the arena and prove your skill!',
         artType: 'digitSum',
+        image: './images/story/g3_s6.jpg',
       },
     ],
     activities: [
